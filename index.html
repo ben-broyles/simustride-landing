@@ -1,43 +1,315 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SimuStride</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SimuStride — Augmented Reality Rehabilitation for Amputees</title>
+  <meta name="description" content="SimuStride is an augmented‑reality rehabilitation system that helps lower‑limb amputees reduce phantom limb pain and retrain movement using EMG‑driven virtual prosthetics and haptic feedback." />
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:title" content="SimuStride — Augmented Reality Rehabilitation for Amputees" />
+  <meta property="og:description" content="EMG‑driven AR training and haptic feedback to reduce phantom limb pain and accelerate rehab." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://simustride.com" />
+  <meta property="og:image" content="assets/og-simustride.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
-    /* Reset body margins and padding */
-    body {
-      margin: 0;
-      padding: 0;
-      
-      /* Set background color */
-      background-color: #021629;
-      
-      /* Use flex to center content both horizontally and vertically */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      
-      /* Make the page take up the full browser height */
-      height: 100vh;
+    :root{
+      --bg:#030712;        /* slate-950 */
+      --panel:#0b1220;     /* deep navy */
+      --muted:#94a3b8;     /* slate-400 */
+      --text:#e5e7eb;      /* zinc-200 */
+      --brand:#22d3ee;     /* cyan-400 */
+      --brand-2:#60a5fa;   /* blue-400 */
+      --acc:#34d399;       /* green-400 */
+      --danger:#fb7185;    /* rose-400 */
+      --ring: 0 0 0 3px rgba(34,211,238,.25);
+      --radius: 18px;
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --shadow-sm: 0 6px 18px rgba(0,0,0,.25);
+      --max: 1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      color:var(--text); background:radial-gradient(1200px 600px at 80% -10%, rgba(96,165,250,.08), transparent 60%),
+                         radial-gradient(900px 500px at 0% 0%, rgba(34,211,238,.08), transparent 60%),
+                         var(--bg);
+      line-height:1.6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:var(--brand)}
+    .container{max-width:var(--max); margin:0 auto; padding:0 24px}
+
+    /* Nav */
+    .nav{position:sticky; top:0; z-index:50; backdrop-filter:saturate(160%) blur(8px);
+         background:rgba(3,7,18,.6); border-bottom:1px solid rgba(148,163,184,.12)}
+    .nav-inner{display:flex; align-items:center; justify-content:space-between; height:64px}
+    .brand{display:flex; align-items:center; gap:10px; text-decoration:none}
+    .logo{width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,var(--brand),var(--brand-2)); box-shadow:var(--shadow-sm)}
+    .brand span{font-weight:700; letter-spacing:.2px}
+    .nav-links{display:flex; gap:18px}
+    .nav-links a{color:var(--text); text-decoration:none; font-weight:500; font-size:14px; opacity:.84}
+    .nav-links a:hover{opacity:1}
+    .nav-cta{display:flex; gap:10px}
+    .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:12px; font-weight:600; text-decoration:none; border:1px solid rgba(148,163,184,.18); background:rgba(11,18,32,.6)}
+    .btn:hover{box-shadow:var(--shadow-sm)}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#001018; border-color:transparent}
+
+    /* Hero */
+    .hero{padding:72px 0 24px}
+    .hero-grid{display:grid; grid-template-columns:1.25fr 1fr; gap:40px; align-items:center}
+    .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.3px; text-transform:uppercase; color:var(--muted)}
+    .eyebrow .dot{width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,var(--brand),var(--acc))}
+    h1{margin:10px 0 10px; font-size:44px; line-height:1.1; letter-spacing:-.02em}
+    .lead{font-size:18px; color:#cdd5e1}
+    .callouts{display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 28px}
+    .pill{font-size:12px; color:#001018; padding:8px 10px; border-radius:999px;
+      background:linear-gradient(135deg, rgba(34,211,238,.9), rgba(96,165,250,.9));}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); border:1px solid rgba(148,163,184,.18); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .hero-video{aspect-ratio:16/9; width:100%; overflow:hidden}
+    .hero-video iframe{width:100%; height:100%; border:0}
+
+    /* Sections */
+    section{padding:80px 0}
+    .section-title{font-size:28px; margin:0 0 12px}
+    .section-sub{color:var(--muted); margin:0 0 24px}
+
+    .features{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+    .feature{padding:18px}
+    .feature h3{margin:8px 0 6px}
+    .feature p{color:#cdd5e1; font-size:15px}
+
+    .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:12px}
+    .stat{padding:18px; text-align:center}
+    .stat h4{font-size:32px; margin:0}
+    .stat p{margin:6px 0 0; color:var(--muted); font-size:13px}
+
+    .awards{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+    .award{padding:16px}
+    .award img{width:100%; height:180px; object-fit:cover; border-radius:12px; border:1px solid rgba(148,163,184,.18)}
+    .award h4{margin:12px 0 6px}
+    .award a{font-size:14px}
+
+    .team{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+    .person{padding:18px; text-align:center}
+    .avatar{width:108px; height:108px; margin:0 auto 12px; border-radius:50%; object-fit:cover; border:1px solid rgba(148,163,184,.18)}
+    .role{color:var(--muted); font-size:14px}
+
+    .cta{
+      display:flex; gap:14px; flex-wrap:wrap; margin-top:12px
     }
 
-    h1 {
-      /* Set your desired font, with fallbacks */
-      font-family: "Helvetica Neue Condensed Black", "Helvetica Neue", Arial, sans-serif;
-      
-      /* Text color */
-      color: #0FBAF2;
-      
-      /* Center text alignment */
-      text-align: center;
-      
-      /* Optionally, make it bigger */
-      font-size: 2rem;
-    }
+    .panel{padding:22px}
+
+    /* Footer */
+    footer{padding:48px 0; border-top:1px solid rgba(148,163,184,.12); color:#cbd5e1}
+    .foot-grid{display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:24px}
+    .small{font-size:12px; color:var(--muted)}
+
+    /* Responsive */
+    @media (max-width: 980px){ .hero-grid{grid-template-columns:1fr} .features,.awards,.team,.stats,.foot-grid{grid-template-columns:1fr} nav .nav-links{display:none} }
   </style>
 </head>
 <body>
-  <h1>SimuStride website coming soon...</h1>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#top" class="brand" aria-label="SimuStride home">
+        <div class="logo" aria-hidden="true"></div>
+        <span>SimuStride</span>
+      </a>
+      <div class="nav-links" aria-label="Primary">
+        <a href="#product">Product</a>
+        <a href="#science">Results</a>
+        <a href="#awards">Awards</a>
+        <a href="#team">Team</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="nav-cta">
+        <a class="btn" href="#contact">Contact</a>
+        <a class="btn primary" href="#pilot">Join Pilot</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="top" class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Augmented Reality Rehabilitation</div>
+        <h1>Restoring movement. Reducing phantom limb pain.</h1>
+        <p class="lead">SimuStride lets lower‑limb amputees visualize and control a virtual prosthesis using their own muscle signals, pairing <strong>EMG‑driven intent</strong> with <strong>real‑time haptic feedback</strong> to retrain the brain and accelerate rehab.</p>
+        <div class="callouts">
+          <span class="pill">EMG ➜ AR prosthesis</span>
+          <span class="pill">Haptic feedback</span>
+          <span class="pill">Early post‑op training</span>
+        </div>
+        <div class="cta">
+          <a class="btn primary" href="#pilot">Join our pilot</a>
+          <a class="btn" href="#science">See early results</a>
+        </div>
+      </div>
+      <div class="card hero-video" aria-label="NIH DEBUT pitch video">
+        <!-- Replace the src if you have a different video to feature -->
+        <iframe src="https://www.youtube.com/embed/qbARvNWcVzE" title="SimuStride — NIH DEBUT Pitch" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    </div>
+  </header>
+
+  <!-- PRODUCT -->
+  <section id="product">
+    <div class="container">
+      <h2 class="section-title">How SimuStride works</h2>
+      <p class="section-sub">A lightweight EMG sleeve reads residual‑limb muscle activity and maps intent to a tracked virtual prosthesis in AR. Haptic motors reinforce correct activation to build motor memory before fitting a physical prosthesis.</p>
+      <div class="features">
+        <div class="card feature">
+          <h3>EMG intent decoding</h3>
+          <p>Signal processing extracts clean activation patterns from residual‑limb musculature to drive knee/ankle control in a virtual limb.</p>
+        </div>
+        <div class="card feature">
+          <h3>AR visualization</h3>
+          <p>A 3D prosthesis aligns to the user in mixed reality, enabling task‑based training (gait cycles, toe taps, step‑overs) months earlier.</p>
+        </div>
+        <div class="card feature">
+          <h3>Real‑time haptics</h3>
+          <p>Vibrotactile cues guide timing and magnitude of contractions, reinforcing motor learning and body‑schema updates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS / SCIENCE -->
+  <section id="science">
+    <div class="container">
+      <h2 class="section-title">Early results</h2>
+      <p class="section-sub">Pre‑pilot testing with lower‑limb amputees has shown encouraging signals for phantom‑limb pain relief and engagement. (Preliminary; not a medical claim.)</p>
+      <div class="stats">
+        <div class="card stat">
+          <h4>100%</h4>
+          <p>Participants reporting near‑term phantom pain reduction (pre‑pilot)</p>
+        </div>
+        <div class="card stat">
+          <h4>Minutes</h4>
+          <p>To begin guided, intent‑driven virtual movements</p>
+        </div>
+        <div class="card stat">
+          <h4>Clinic + Home</h4>
+          <p>Designed for versatile rehab settings</p>
+        </div>
+      </div>
+      <div class="panel card" style="margin-top:18px">
+        <strong>Clinical collaborators:</strong> University of Miami Health — Total Limb Care Clinic; VA partners (pilot planning). <!-- Keep general; add specifics as approvals finalize. -->
+      </div>
+    </div>
+  </section>
+
+  <!-- AWARDS / PRESS -->
+  <section id="awards">
+    <div class="container">
+      <h2 class="section-title">Awards & recognition</h2>
+      <p class="section-sub">We’re grateful for the communities supporting disability‑centered innovation.</p>
+      <div class="awards">
+        <div class="card award">
+          <img src="assets/award-ustaar.jpg" alt="SimuStride team accepting the USTAAR Accelerator grand prize" />
+          <h4>$100,000 — USTAAR Accelerator</h4>
+          <p>University of Miami’s USTAAR accelerator grand prize to advance clinical readiness.</p>
+        </div>
+        <div class="card award">
+          <img src="assets/award-acc.jpg" alt="SimuStride wins ACC InVenture Prize" />
+          <h4>$15,000 — ACC InVenture Prize (1st Place)</h4>
+          <p>Nationally broadcast collegiate innovation competition. <a href="https://www.youtube.com/watch?v=qbARvNWcVzE" target="_blank" rel="noopener">Watch our ACC pitch ➜</a></p>
+        </div>
+        <div class="card award">
+          <img src="assets/award-debut.jpg" alt="SimuStride team recognized at NIH DEBUT Challenge" />
+          <h4>$15,000 — NIH DEBUT Rehabilitative & Assistive Technologies Prize</h4>
+          <p>Prize from NIH’s DEBUT Challenge recognizing impactful student medtech.</p>
+        </div>
+      </div>
+      <div class="panel card" style="margin-top:18px">
+        <strong>Featured video:</strong> <a href="https://www.youtube.com/watch?v=qbARvNWcVzE" target="_blank" rel="noopener">NIH DEBUT Pitch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section id="team">
+    <div class="container">
+      <h2 class="section-title">Team</h2>
+      <p class="section-sub">Builders, clinicians, and advocates focused on restoring independence for amputees.</p>
+      <div class="team">
+        <div class="card person">
+          <img class="avatar" src="assets/ben-broyles.jpeg" alt="Portrait of Ben Broyles" />
+          <h3>Ben Broyles</h3>
+          <div class="role">Co‑Founder • Biomedical Engineer • Disability Advocate</div>
+          <p style="margin-top:10px"><a href="https://www.linkedin.com/in/benbroyles" target="_blank" rel="noopener">LinkedIn</a></p>
+        </div>
+        <div class="card person">
+          <img class="avatar" src="assets/elissa-cimino.jpg" alt="Portrait of Elissa Cimino" />
+          <h3>Elissa Cimino</h3>
+          <div class="role">Co‑Founder • Biomedical Engineering (Mechanical)</div>
+        </div>
+        <div class="card person">
+          <img class="avatar" src="assets/aidan-scott-van-deusen.jpg" alt="Portrait of Aidan Scott‑Van Deusen" />
+          <h3>Aidan Scott‑Van Deusen</h3>
+          <div class="role">Co‑Founder • Biomedical Engineering (Electrical)</div>
+        </div>
+      </div>
+      <div class="panel card" style="margin-top:18px">
+        <strong>Advisors:</strong> Clinical psychology (amputees & burn survivors), limb reconstruction, physiatry, prosthetics, rehab engineering. <!-- Add names/logos when approved for web. -->
+      </div>
+    </div>
+  </section>
+
+  <!-- PILOT / CONTACT -->
+  <section id="pilot">
+    <div class="container">
+      <h2 class="section-title">Join our pilot</h2>
+      <p class="section-sub">Clinics, therapists, or amputees interested in early evaluations — we’d love to talk.</p>
+      <div class="card panel">
+        <div class="cta">
+          <a class="btn primary" href="mailto:postal.amber.7m@icloud.com?subject=SimuStride%20Pilot%20Interest">Email postal.amber.7m@icloud.com</a>
+          <a class="btn" href="#contact">General inquiries</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact</h2>
+      <div class="card panel">
+        <p style="margin:0 0 6px">General: <a href="mailto:postal.amber.7m@icloud.com">postal.amber.7m@icloud.com</a></p>
+        <p style="margin:0">Partnerships & pilots: <a href="mailto:postal.amber.7m@icloud.com">postal.amber.7m@icloud.com</a></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:10px"><div class="logo"></div><span>SimuStride</span></div>
+        <div class="small">© <span id="year"></span> SimuStride, Inc. All rights reserved.</div>
+      </div>
+      <div>
+        <div class="small">Built with accessibility and inclusion in mind. Content for informational purposes only; not medical advice.</div>
+      </div>
+      <div>
+        <div class="small">Media: <a href="mailto:postal.amber.7m@icloud.com">postal.amber.7m@icloud.com</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
 </body>
 </html>
-
